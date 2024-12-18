@@ -4,13 +4,6 @@ jobs:
   Connexion:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: action/checkout@v3
-
-      - name: Create sensitive file
-        run: |
-          echo "${{  secrets.HTPASSWD_CONTENT }}" > .htpasswd
-
       - name: Connexion SSH avec le serveur
         uses: appleboy/ssh-action@master
         with:
@@ -35,7 +28,7 @@ jobs:
             git clone https://github.com/${{ github.repository }}.git
             # Vérifier si le répertoire de destination existe
             if [ "$(ls -A ./www)" ]; then
-              rsync -r ./$last_directory/ ./www
+              rsync -r --delete ./$last_directory/ ./www
               rm -rf ./$last_directory
             else
               echo "Le répertoire flask de destination sur votre serveur n'existe pas"
