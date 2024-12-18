@@ -5,15 +5,11 @@ session_start();
 // Vérifier si l'utilisateur est déjà en possession d'un cookie valide (cookie authToken ayant le contenu 12345)
 // Si l'utilisateur possède déjà ce cookie, il sera redirigé automatiquement vers la page home.php
 // Dans le cas contraire il devra s'identifier.
-if (isset($_COOKIE['authToken']) && isset($_SESSION['authToken'])) {
-    if ($_COOKIE['authToken'] === $_SESSION['authToken']) {
-        header('Location: page_admin.php');
-        exit();
-    } else {
-        setcookie('authToken', '', time() - 3600, '/', '', false, true);
-        unset($_SESSION['authToken']);
-    }
+if (isset($_COOKIE['authToken']) && $_COOKIE['authToken'] === '12345') {
+    header('Location: page_admin.php');
+    exit();
 }
+
 // Gérer la soumission du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
@@ -24,9 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username === 'admin' && $password === 'secret') {
 
         $token = bin2hex(random_bytes(16));
-        $_SESSION['authToken'] = $token;
-
-        setcookie('authToken', $token, time() + 60, '/', '', false, true); // Le Cookie est initialisé et valable pendant 1 heure (3600 secondes) 
+        setcookie('authToken', $token, time() + 3600, '/', '', false, true); // Le Cookie est initialisé et valable pendant 1 heure (3600 secondes) 
         header('Location: page_admin.php'); // L'utilisateur est dirigé vers la page home.php
         exit();
     } else {
@@ -44,9 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <h1>Atelier authentification par Cookie</h1>
-    <?php if (isset($error)) : ?>
-        <p style="color: red;"><?php echo htmlspecialchars($error); ?></p>
-    <?php endif; ?>
     <h3>La page <a href="page_admin.php">page_admin.php</a> est inaccéssible tant que vous ne vous serez pas connecté avec le login 'admin' et mot de passe 'secret'</h3>
     <form method="POST" action="">
         <label for="username">Nom d'utilisateur :</label>
