@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $token = bin2hex(random_bytes(16));
         $_SESSION['authToken'] = $token;
 
-        setcookie('authToken', '$token', time() + 60, '/', '', false, true); // Le Cookie est initialisé et valable pendant 1 heure (3600 secondes) 
+        setcookie('authToken', $token, time() + 60, '/', '', false, true); // Le Cookie est initialisé et valable pendant 1 heure (3600 secondes) 
         header('Location: page_admin.php'); // L'utilisateur est dirigé vers la page home.php
         exit();
     } else {
