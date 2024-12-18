@@ -1,12 +1,16 @@
 name: Industrialisation continue sur le serveur Alwaysdata
-
-on: 
-  push:
-
+on: push
 jobs:
   Connexion:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: action/checkout@v3
+
+      - name: Create sensitive file
+        run: |
+          echo "${{  secrets.HTPASSWD_CONTENT }}" > .htpasswd
+
       - name: Connexion SSH avec le serveur
         uses: appleboy/ssh-action@master
         with:
@@ -15,8 +19,6 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             cd $HOME/www/
-            echo "Connexion réussie. Répertoire actuel : $(pwd)"
-  
   Copy:
     needs: Connexion
     runs-on: ubuntu-latest
@@ -28,36 +30,14 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
-          
             last_directory=$(basename ${{ runner.workspace }})
-            cd $HOME
-            git clone https://github.com/${{ github.repository }}.git || { echo "Clone échoué"; exit 1; }
-            cd ./$last_directory
-
-           
-            if [ -d "$HOME/www" ]; then
-              echo "Le répertoire de destination existe, synchronisation des fichiers..."
-              rsync -r ./ $HOME/www/ || { echo "Erreur de synchronisation"; exit 1; }
+            cd $HOME/
+            git clone https://github.com/${{ github.repository }}.git
+            # Vérifier si le répertoire de destination existe
+            if [ "$(ls -A ./www)" ]; then
+              rsync -r ./$last_directory/ ./www
+              rm -rf ./$last_directory
             else
-              echo "Le répertoire www n'existe pas sur le serveur Alwaysdata."
+              echo "Le répertoire flask de destination sur votre serveur n'existe pas"
               exit 1
             fi
-
-            
-            cd $HOME
-            rm -rf ./$last_directory
-            echo "Synchronisation terminée."
-
-  DeployHtpasswd:
-    needs: Copy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Déployer le fichier .htpasswd sécurisé
-        uses: appleboy/ssh-action@master
-        with:
-          host: "ssh-${{ secrets.USERNAME }}.alwaysdata.net"
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          script: |
-            echo "${{ secrets.HTPASSWD_CONTENT }}" > $HOME/www/.htpasswd
-            echo "Fichier .htpasswd déployé avec succès."
