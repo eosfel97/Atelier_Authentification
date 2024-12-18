@@ -20,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username === 'admin' && $password === 'secret') {
 
         $token = bin2hex(random_bytes(16));
-
         $_SESSION['authToken'] = $token;
 
         setcookie('authToken', '$token', time() + 60, '/', '', false, true); // Le Cookie est initialisé et valable pendant 1 heure (3600 secondes) 
