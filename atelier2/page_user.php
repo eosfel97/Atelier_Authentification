@@ -17,7 +17,7 @@ if (!isset($_COOKIE['authToken']) || !str_starts_with($_COOKIE['authToken'], 'us
     <title>Page Utilisateur</title>
 </head>
 <body>
-    <h1>Bienvenue sur la page Utilisateur !</h1>
+    <h1>Bienvenue sur la page Utilisateur protégée par un Cookie</h1>
     <p>Vous êtes connecté en tant qu'utilisateur.</p>
     <a href="logout.php">Se déconnecter</a>
 </body>
